@@ -76,7 +76,7 @@ class _TelaCadastroSoundButtonState extends State<TelaCadastroSoundButton> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.button == null ? 'Novo Botão' : 'Editar Botão'),
+        title: Text(widget.button == null ? 'Adicionar Audio' : 'Editar audio'),
         backgroundColor: Colors.indigo,
       ),
       body: Padding(
