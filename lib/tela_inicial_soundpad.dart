@@ -70,9 +70,23 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
         backgroundColor: Colors.indigo,
         actions: [
           IconButton(
-            icon: Icon(Icons.audiotrack),
-            onPressed: _pickAudioFile,
-            tooltip: 'Selecionar áudio',
+            icon: Icon(Icons.info_outline),
+            tooltip: 'Créditos',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Créditos'),
+                  content: Text('Este aplicativo foi desenvolvido por Davi Cizerça para a matéria de Desenvolvimento para Dispositivos Móveis do professor Heitor Scalco Neto.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
