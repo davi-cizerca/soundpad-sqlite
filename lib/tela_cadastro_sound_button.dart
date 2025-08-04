@@ -5,7 +5,6 @@ import 'dao/sound_button_dao.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'permission_handler.dart';
 
 class TelaCadastroSoundButton extends StatefulWidget {
@@ -22,6 +21,7 @@ class TelaCadastroSoundButton extends StatefulWidget {
 class _TelaCadastroSoundButtonState extends State<TelaCadastroSoundButton> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nomeController;
+  late TextEditingController _categoriaController;
   String? _audioPath;
   Color _buttonColor = Colors.indigo.shade100;
 
@@ -41,6 +41,9 @@ class _TelaCadastroSoundButtonState extends State<TelaCadastroSoundButton> {
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.button?.nome ?? '');
+    _categoriaController = TextEditingController(
+      text: widget.button?.categoria ?? '',
+    );
     _audioPath = widget.audioPath ?? widget.button?.audioPath;
     if (widget.button?.cor != null) {
       _buttonColor = Color(int.parse(widget.button!.cor!));
@@ -83,6 +86,8 @@ class _TelaCadastroSoundButtonState extends State<TelaCadastroSoundButton> {
 
   @override
   void dispose() {
+    _nomeController.dispose();
+    _categoriaController.dispose();
     _recorder?.closeRecorder();
     _player?.closePlayer();
     super.dispose();
@@ -192,6 +197,10 @@ class _TelaCadastroSoundButtonState extends State<TelaCadastroSoundButton> {
       nome: _nomeController.text,
       audioPath: _audioPath!,
       cor: _buttonColor.value.toString(),
+      categoria:
+          _categoriaController.text.isNotEmpty
+              ? _categoriaController.text
+              : null,
     );
     await insertSoundButton(btn);
     Navigator.pop(context);
@@ -208,318 +217,315 @@ class _TelaCadastroSoundButtonState extends State<TelaCadastroSoundButton> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nomeController,
-                decoration: InputDecoration(labelText: 'Nome do botão'),
-                validator:
-                    (v) => v == null || v.isEmpty ? 'Informe o nome' : null,
-              ),
-              SizedBox(height: 16),
-
-              // Seção de seleção de áudio
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.shade200),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _nomeController,
+                  decoration: InputDecoration(labelText: 'Nome do botão'),
+                  validator:
+                      (v) => v == null || v.isEmpty ? 'Informe o nome' : null,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Selecionar Áudio',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade700,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _audioPath == null
-                                ? 'Nenhum áudio selecionado'
-                                : _audioPath!.split('/').last,
-                            style: TextStyle(fontSize: 12),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.audiotrack),
-                          onPressed: _pickAudio,
-                          tooltip: 'Selecionar arquivo de áudio',
-                        ),
-                      ],
-                    ),
-                  ],
+                SizedBox(height: 16),
+                TextFormField(
+                  controller: _categoriaController,
+                  decoration: InputDecoration(
+                    labelText: 'Categoria (opcional)',
+                    hintText: 'Ex: Música, Efeitos, Voz',
+                  ),
                 ),
-              ),
-
-              SizedBox(height: 16),
-
-              // Seção de gravação
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Gravar Áudio',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red.shade700,
-                          ),
-                        ),
-                        if (!_hasPermission) ...[
-                          SizedBox(width: 8),
-                          Icon(Icons.warning, color: Colors.orange, size: 16),
-                        ],
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    if (!_hasPermission) ...[
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.orange.shade200),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.orange.shade700,
-                              size: 16,
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Permissão necessária para gravar',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.orange.shade700,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: _requestPermissions,
-                              child: Text(
-                                'Conceder',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.orange.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                    ],
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _isRecording
-                                ? 'Gravando...'
-                                : _recordedFilePath != null
-                                ? 'Áudio gravado pronto!'
-                                : 'Grave seu próprio áudio',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(_isRecording ? Icons.stop : Icons.mic),
-                          color: _isRecording ? Colors.red : Colors.indigo,
-                          onPressed:
-                              (_isRecording || !_hasPermission)
-                                  ? (_isRecording ? _stopRecording : null)
-                                  : _startRecording,
-                          tooltip:
-                              _isRecording
-                                  ? 'Parar gravação'
-                                  : 'Iniciar gravação',
-                        ),
-                      ],
-                    ),
-                    if (_recordedFilePath != null && !_isRecording) ...[
-                      SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.save),
-                        label: Text('Usar áudio gravado'),
-                        onPressed: () {
-                          setState(() {
-                            _audioPath = _recordedFilePath;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Áudio gravado selecionado!'),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          minimumSize: Size(double.infinity, 40),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 16),
-
-              // Seção de reprodução (só aparece se há áudio selecionado)
-              if (_audioPath != null) ...[
+                SizedBox(height: 16),
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.green.shade200),
+                    border: Border.all(color: Colors.blue.shade200),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ouvir Áudio',
+                        'Selecionar Áudio',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green.shade700,
+                          color: Colors.blue.shade700,
                         ),
                       ),
                       SizedBox(height: 8),
-                      if (_isPlaying) ...[
-                        Text(
-                          _formatDuration(_playbackPosition),
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value:
-                              _playbackDuration.inMilliseconds > 0
-                                  ? _playbackPosition.inMilliseconds /
-                                      _playbackDuration.inMilliseconds
-                                  : 0,
-                          backgroundColor: Colors.green.shade200,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.green,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                      ],
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          ElevatedButton.icon(
-                            onPressed: _playAudio,
-                            icon: Icon(
-                              _isPlaying ? Icons.stop : Icons.play_arrow,
-                            ),
-                            label: Text(_isPlaying ? 'Parar' : 'Ouvir'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
-                              minimumSize: Size(120, 40),
+                          Expanded(
+                            child: Text(
+                              _audioPath == null
+                                  ? 'Nenhum áudio selecionado'
+                                  : _audioPath!.split('/').last,
+                              style: TextStyle(fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (_isPlaying) ...[
-                            Text(
-                              'Ouvindo...',
-                              style: TextStyle(
-                                color: Colors.green.shade700,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                          IconButton(
+                            icon: Icon(Icons.audiotrack),
+                            onPressed: _pickAudio,
+                            tooltip: 'Selecionar arquivo de áudio',
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
                 SizedBox(height: 16),
-              ],
-
-              // Seção de cor
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Cor do Botão',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange.shade700,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text('Cor selecionada:'),
-                        SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: _pickColor,
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: _buttonColor,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.black26),
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Gravar Áudio',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red.shade700,
                             ),
                           ),
+                          if (!_hasPermission) ...[
+                            SizedBox(width: 8),
+                            Icon(Icons.warning, color: Colors.orange, size: 16),
+                          ],
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      if (!_hasPermission) ...[
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.orange.shade700,
+                                size: 16,
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Permissão necessária para gravar',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.orange.shade700,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: _requestPermissions,
+                                child: Text(
+                                  'Conceder',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.orange.shade700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 8),
-                        TextButton(
-                          onPressed: _pickColor,
-                          child: Text('Alterar cor'),
+                        SizedBox(height: 8),
+                      ],
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _isRecording
+                                  ? 'Gravando...'
+                                  : _recordedFilePath != null
+                                  ? 'Áudio gravado pronto!'
+                                  : 'Grave seu próprio áudio',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(_isRecording ? Icons.stop : Icons.mic),
+                            color: _isRecording ? Colors.red : Colors.indigo,
+                            onPressed:
+                                (_isRecording || !_hasPermission)
+                                    ? (_isRecording ? _stopRecording : null)
+                                    : _startRecording,
+                            tooltip:
+                                _isRecording
+                                    ? 'Parar gravação'
+                                    : 'Iniciar gravação',
+                          ),
+                        ],
+                      ),
+                      if (_recordedFilePath != null && !_isRecording) ...[
+                        SizedBox(height: 8),
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.save),
+                          label: Text('Usar áudio gravado'),
+                          onPressed: () {
+                            setState(() {
+                              _audioPath = _recordedFilePath;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Áudio gravado selecionado!'),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            minimumSize: Size(double.infinity, 40),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16),
+                if (_audioPath != null) ...[
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ouvir Áudio',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        if (_isPlaying) ...[
+                          Text(
+                            _formatDuration(_playbackPosition),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          LinearProgressIndicator(
+                            value:
+                                _playbackDuration.inMilliseconds > 0
+                                    ? _playbackPosition.inMilliseconds /
+                                        _playbackDuration.inMilliseconds
+                                    : 0,
+                            backgroundColor: Colors.green.shade200,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.green,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                        ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: _playAudio,
+                              icon: Icon(
+                                _isPlaying ? Icons.stop : Icons.play_arrow,
+                              ),
+                              label: Text(_isPlaying ? 'Parar' : 'Ouvir'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(120, 40),
+                              ),
+                            ),
+                            if (_isPlaying) ...[
+                              Text(
+                                'Ouvindo...',
+                                style: TextStyle(
+                                  color: Colors.green.shade700,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                  SizedBox(height: 16),
+                ],
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Cor do Botão',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange.shade700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text('Cor selecionada:'),
+                          SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: _pickColor,
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: _buttonColor,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.black26),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          TextButton(
+                            onPressed: _pickColor,
+                            child: Text('Alterar cor'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-
-              Spacer(),
-
-              // Botão de salvar
-              ElevatedButton(
-                onPressed: _audioPath != null ? _save : null,
-                child: Text('Salvar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
-                  foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 48),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _audioPath != null ? _save : null,
+                  child: Text('Salvar'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 48),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

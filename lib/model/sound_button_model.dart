@@ -3,12 +3,14 @@ class SoundButtonModel {
   String nome;
   String audioPath;
   String? cor;
+  String? categoria;
 
   SoundButtonModel({
     this.id,
     required this.nome,
     required this.audioPath,
     this.cor,
+    this.categoria,
   });
 
   factory SoundButtonModel.fromMap(Map map) {
@@ -17,15 +19,21 @@ class SoundButtonModel {
       nome: map['nome'],
       audioPath: map['audioPath'],
       cor: map['cor'],
+      categoria: map['categoria'],
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {'nome': nome, 'audioPath': audioPath, 'cor': cor};
+    return {
+      'nome': nome,
+      'audioPath': audioPath,
+      'cor': cor,
+      'categoria': categoria,
+    };
   }
 
   @override
   String toString() {
-    return 'SoundButtonModel: {id: $id, nome: $nome, audioPath: $audioPath, cor: $cor}';
+    return 'SoundButtonModel: {id: $id, nome: $nome, audioPath: $audioPath, cor: $cor, categoria: $categoria}';
   }
 }

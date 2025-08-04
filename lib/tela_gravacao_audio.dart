@@ -91,7 +91,6 @@ class _TelaGravacaoAudioState extends State<TelaGravacaoAudio> {
         _recordingDuration = Duration.zero;
       });
 
-      // Atualizar duração da gravação
       _recorder!.onProgress!.listen((e) {
         setState(() {
           _recordingDuration = e.duration;
@@ -179,7 +178,6 @@ class _TelaGravacaoAudioState extends State<TelaGravacaoAudio> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Áudio salvo com sucesso!')));
-      // Limpar a gravação após salvar
       setState(() {
         _recordedFilePath = null;
         _recordedFileName = null;
@@ -247,7 +245,6 @@ class _TelaGravacaoAudioState extends State<TelaGravacaoAudio> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Status da permissão
             if (!_hasPermission)
               Container(
                 width: double.infinity,
@@ -293,7 +290,6 @@ class _TelaGravacaoAudioState extends State<TelaGravacaoAudio> {
                 ),
               ),
 
-            // Status da gravação
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -338,7 +334,6 @@ class _TelaGravacaoAudioState extends State<TelaGravacaoAudio> {
 
             SizedBox(height: 40),
 
-            // Botões de controle de gravação
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -370,7 +365,6 @@ class _TelaGravacaoAudioState extends State<TelaGravacaoAudio> {
 
             SizedBox(height: 40),
 
-            // Área de reprodução (só aparece se há gravação)
             if (_recordedFilePath != null) ...[
               Container(
                 padding: EdgeInsets.all(20),

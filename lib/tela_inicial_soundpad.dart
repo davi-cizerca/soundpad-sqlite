@@ -14,10 +14,12 @@ class TelaInicialSoundpad extends StatefulWidget {
 
 class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
   List<SoundButtonModel> buttons = [];
+  List<SoundButtonModel> filteredButtons = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
   SoundButtonModel? _currentlyPlaying;
+  String? _selectedCategory;
+  List<String> categories = [];
 
-  // Lista de sons recentemente tocados
   List<SoundButtonModel> _recentSounds = [];
 
   @override
@@ -37,9 +39,21 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
 
   Future<void> _loadButtons() async {
     final data = await findAllSoundButtons();
+    final categoriesData = await findAllCategories();
     setState(() {
       buttons = data.map((e) => SoundButtonModel.fromMap(e)).toList();
+      categories = categoriesData;
+      _filterButtons();
     });
+  }
+
+  void _filterButtons() {
+    if (_selectedCategory == null) {
+      filteredButtons = buttons;
+    } else {
+      filteredButtons =
+          buttons.where((btn) => btn.categoria == _selectedCategory).toList();
+    }
   }
 
   void _addToRecent(SoundButtonModel btn) {
@@ -55,13 +69,11 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
   void _playSound(String path, [SoundButtonModel? btn]) async {
     try {
       if (_currentlyPlaying?.id == btn?.id) {
-        // Se o mesmo botão está tocando, para a reprodução
         await _audioPlayer.stop();
         setState(() {
           _currentlyPlaying = null;
         });
       } else {
-        // Para qualquer reprodução atual e inicia a nova
         await _audioPlayer.stop();
         await _audioPlayer.play(DeviceFileSource(path));
         setState(() {
@@ -108,7 +120,6 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Áudio selecionado: $path')));
-      // Aqui você pode adicionar lógica para usar o arquivo selecionado
     }
   }
 
@@ -165,6 +176,33 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
         title: Text('SoundPad'),
         backgroundColor: Colors.indigo,
         actions: [
+          if (categories.isNotEmpty)
+            PopupMenuButton<String>(
+              icon: Icon(Icons.filter_list),
+              tooltip: 'Filtrar por categoria',
+              onSelected: (String category) {
+                setState(() {
+                  _selectedCategory = category == 'Todas' ? null : category;
+                  _filterButtons();
+                });
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem<String>(
+                    value: 'Todas',
+                    child: Text('Todas as categorias'),
+                  ),
+                  ...categories
+                      .map(
+                        (category) => PopupMenuItem<String>(
+                          value: category,
+                          child: Text(category),
+                        ),
+                      )
+                      .toList(),
+                ];
+              },
+            ),
           IconButton(
             icon: Icon(Icons.history),
             tooltip: 'Recentes',
@@ -196,7 +234,6 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
       ),
       body: Column(
         children: [
-          // Indicador de reprodução atual
           if (_currentlyPlaying != null)
             Container(
               width: double.infinity,
@@ -247,12 +284,50 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
               ),
             ),
 
-          // Grid de botões
+          if (_selectedCategory != null)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(8),
+              margin: EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.category, color: Colors.blue.shade700, size: 16),
+                  SizedBox(width: 8),
+                  Text(
+                    'Categoria: $_selectedCategory',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade700,
+                    ),
+                  ),
+                  Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedCategory = null;
+                        _filterButtons();
+                      });
+                    },
+                    child: Text(
+                      'Limpar filtro',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child:
-                  buttons.isEmpty
+                  filteredButtons.isEmpty
                       ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -287,9 +362,9 @@ class _TelaInicialSoundpadState extends State<TelaInicialSoundpad> {
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
                         ),
-                        itemCount: buttons.length,
+                        itemCount: filteredButtons.length,
                         itemBuilder: (context, index) {
-                          final btn = buttons[index];
+                          final btn = filteredButtons[index];
                           final isPlaying = _currentlyPlaying?.id == btn.id;
 
                           return GestureDetector(

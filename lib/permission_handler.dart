@@ -3,11 +3,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 class PermissionHandler {
   static Future<bool> requestAudioPermissions(BuildContext context) async {
-    // Solicita permissão de gravação de áudio
     PermissionStatus audioStatus = await Permission.microphone.request();
 
     if (audioStatus.isDenied) {
-      // Se negado, mostra diálogo explicativo
       bool shouldShowRationale =
           await showDialog(
             context: context,
@@ -39,7 +37,6 @@ class PermissionHandler {
     }
 
     if (audioStatus.isPermanentlyDenied) {
-      // Se permanentemente negado, abre configurações
       await showDialog(
         context: context,
         builder:
