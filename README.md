@@ -1,10 +1,10 @@
-# 🎵 SoundPad - Aplicativo de Gravação e Reprodução de Áudio
+#  SoundPad em Flutter
 
 Um aplicativo Flutter moderno para gravação, reprodução e gerenciamento de áudios com interface intuitiva e funcionalidades avançadas.
 
-## 📱 Funcionalidades
+##  Funcionalidades
 
-### ✨ Principais Recursos
+###  Principais Recursos
 - **Gravação de Áudio**: Grave áudios diretamente no dispositivo
 - **Reprodução de Áudio**: Ouça áudios antes de salvar
 - **Gerenciamento de Sons**: Organize seus áudios em botões personalizáveis
@@ -13,16 +13,16 @@ Um aplicativo Flutter moderno para gravação, reprodução e gerenciamento de �
 - **Histórico de Reprodução**: Acompanhe os sons mais tocados
 - **Banco de Dados Local**: Armazenamento persistente com SQLite
 
-### 🎯 Funcionalidades Específicas
+###  Funcionalidades Específicas
 
-#### 📹 Tela de Gravação
+####  Tela de Gravação
 - Gravação de áudio em tempo real
 - Controles de play/pause para ouvir gravações
 - Indicadores visuais de status
 - Gerenciamento automático de permissões
 - Salvamento direto no SoundPad
 
-#### 🎵 SoundPad Principal
+####  SoundPad Principal
 - Grid de botões personalizáveis
 - Reprodução com um toque
 - Indicadores visuais de reprodução ativa
@@ -30,30 +30,20 @@ Um aplicativo Flutter moderno para gravação, reprodução e gerenciamento de �
 - Exclusão com toque longo
 - Interface responsiva
 
-#### ⚙️ Tela de Cadastro
+####  Tela de Cadastro
 - Prévia de áudio antes de salvar
 - Seleção de arquivos de áudio
 - Gravação integrada
 - Personalização de cores
 - Validação de dados
 
-## 🛠️ Tecnologias Utilizadas
-
-- **Flutter**: Framework principal
-- **SQLite**: Banco de dados local
-- **AudioPlayers**: Reprodução de áudio
-- **Flutter Sound**: Gravação de áudio
-- **File Picker**: Seleção de arquivos
-- **Permission Handler**: Gerenciamento de permissões
-- **Path Provider**: Gerenciamento de arquivos
-
-## 📋 Pré-requisitos
+##  Pré-requisitos
 
 - Flutter SDK 3.7.0 ou superior
 - Android SDK (API 24+)
 - Permissões de gravação de áudio no dispositivo
 
-## 🚀 Instalação
+##  Instalação
 
 1. **Clone o repositório**
    ```bash
@@ -71,9 +61,9 @@ Um aplicativo Flutter moderno para gravação, reprodução e gerenciamento de �
    flutter run
    ```
 
-## 📱 Como Usar
+##  Como Usar
 
-### 🎙️ Gravação de Áudio
+###  Gravação de Áudio
 1. Acesse a aba "Gravar"
 2. Conceda permissão de gravação quando solicitado
 3. Toque em "Gravar" para iniciar
@@ -81,33 +71,19 @@ Um aplicativo Flutter moderno para gravação, reprodução e gerenciamento de �
 5. Use "Ouvir" para escutar a gravação
 6. Toque em "Salvar" para adicionar ao SoundPad
 
-### 🎵 Usando o SoundPad
+###  Usando o SoundPad
 1. Na aba principal, toque em um botão para reproduzir
 2. Toque no "+" para adicionar novos sons
 3. Toque longo em um botão para excluir
 4. Acesse o histórico através do ícone de relógio
 
-### ⚙️ Adicionando Novos Sons
+###  Adicionando Novos Sons
 1. Toque no botão "+"
 2. Digite um nome para o som
 3. Selecione um arquivo de áudio ou grave um novo
 4. Escolha uma cor para o botão
 5. Ouça o áudio antes de salvar
 6. Toque em "Salvar"
-
-## 🔧 Configuração do Projeto
-
-### Android
-O projeto está configurado para Android com:
-- MinSDK: 24
-- NDK: 27.0.12077973
-- Permissões de áudio configuradas
-
-### Permissões Necessárias
-- `RECORD_AUDIO`: Para gravação de áudio
-- `READ_EXTERNAL_STORAGE`: Para acesso a arquivos
-- `WRITE_EXTERNAL_STORAGE`: Para salvar gravações
-- `READ_MEDIA_AUDIO`: Para Android 13+
 
 ## 📁 Estrutura do Projeto
 
@@ -128,22 +104,6 @@ lib/
 ├── tela_principal_com_abas.dart       # Navegação
 └── permission_handler.dart            # Gerenciamento de permissões
 ```
-
-## 🎨 Características da Interface
-
-- **Design Material**: Interface moderna e intuitiva
-- **Cores Dinâmicas**: Botões personalizáveis com cores
-- **Feedback Visual**: Indicadores de status em tempo real
-- **Responsividade**: Adaptável a diferentes tamanhos de tela
-- **Acessibilidade**: Suporte a tooltips e navegação por toque
-
-## 🔒 Gerenciamento de Permissões
-
-O aplicativo gerencia automaticamente as permissões necessárias:
-- Solicita permissão de gravação quando necessário
-- Mostra diálogos explicativos
-- Redireciona para configurações quando necessário
-- Verifica status das permissões em tempo real
 
 ## 🐛 Solução de Problemas
 
